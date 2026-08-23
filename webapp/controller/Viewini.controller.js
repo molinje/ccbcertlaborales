@@ -5,6 +5,9 @@ sap.ui.define([
 
     return Controller.extend("ccb.org.certlaborales.controller.Viewini", {
         onInit() {
+
+            // Datos del empleado logueado (correo) desde el modelo global
+            var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
         }
     });
 });
