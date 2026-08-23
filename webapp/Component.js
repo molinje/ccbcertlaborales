@@ -47,7 +47,11 @@ sap.ui.define([
             oBackendService.GetDataEmployee(oUserData.email)
                 .then(function (oData) {
                     var oEmployeeData = (oData && oData.d) || oData;
-                    oGlobalDataModel.setProperty("/userData", oEmployeeData);
+                    //oGlobalDataModel.setProperty("/userData", oEmployeeData);
+                    oGlobalDataModel.setProperty("/userData", oData);
+                    if (!oData || !oData.d) {
+                        console.error("Datos del empleado no disponibles");
+                    }
                 })
                 .catch(function (oError) {
                     console.error("Error al consultar los datos del empleado:", oError);
