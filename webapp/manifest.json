@@ -1,0 +1,116 @@
+{
+  "_version": "1.86.0",
+  "sap.app": {
+    "id": "ccb.org.certlaborales",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.31.1",
+      "toolsId": "eb26a5a8-9858-4117-9e7a-b1c0bdcee384"
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "certlabsemObj-show": {
+          "semanticObject": "certlabsemObj",
+          "action": "show",
+          "title": "{{certlabsemObj-show.flpTitle}}",
+          "subTitle": "{{certlabsemObj-show.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.150.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "ccb.org.certlaborales.i18n.i18n"
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "ccb.org.certlaborales.view",
+        "async": true,
+        "viewPath": "ccb.org.certlaborales.view"
+      },
+      "routes": [
+        {
+          "name": "RouteViewini",
+          "pattern": ":?query:",
+          "target": [
+            "TargetViewini"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetViewini": {
+          "id": "Viewini",
+          "name": "Viewini"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "ccb.org.certlaborales.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "ccborgcertlaborales"
+  }
+}

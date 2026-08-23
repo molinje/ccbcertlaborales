@@ -1,0 +1,23 @@
+{
+  "generationParameters": {
+    "generationDate": "Sun Aug 23 2026 15:53:36 GMT+0000 (Coordinated Universal Time)",
+    "generatorPlatform": "SAP Business Application Studio",
+    "serviceType": "None",
+    "metadataFilename": "",
+    "serviceUrl": "N/A",
+    "appName": "certlaborales",
+    "appTitle": "Certificados laborales",
+    "appDescription": "Certificados laborales Cámara de comercio de Bogotá",
+    "appNamespace": "ccb.org",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.150.1",
+    "enableEslint": true,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.31.1",
+    "template": "Basic",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [],
+    "launchText": "To launch the generated application, run the following from the generated application root folder:\n\n```\n    npm start\n```"
+  }
+}
