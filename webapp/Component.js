@@ -1,7 +1,9 @@
 sap.ui.define([
     "sap/ui/core/UIComponent",
-    "ccb/org/certlaborales/model/models"
-], (UIComponent, models) => {
+    "ccb/org/certlaborales/model/models",
+    "ccb/org/certlaborales/service/BackendService",
+    "sap/ui/model/json/JSONModel"
+], (UIComponent, models, BackendService, JSONModel) => {
     "use strict";
 
     return UIComponent.extend("ccb.org.certlaborales.Component", {
@@ -21,6 +23,35 @@ sap.ui.define([
 
             // enable routing
             this.getRouter().initialize();
+
+            // Obtener datos del usuario logueado desde Work Zone / Fiori Launchpad
+            var oUserData = { id: "", email: "", fullName: "" };
+            if (sap.ushell && sap.ushell.Container) {
+                var oUserInfo = sap.ushell.Container.getService("UserInfo");
+                oUserData.id       = oUserInfo.getId()       || "";
+                oUserData.email    = oUserInfo.getEmail()    || "";
+                oUserData.fullName = oUserInfo.getFullName() || "";
+            }
+
+            console.log("Datos del usuario logueado:", oUserData);
+
+            // Crear modelo global para datos del servicio
+            var oGlobalDataModel = new JSONModel({
+                userLogin: oUserData,  // Datos del usuario actual (Work Zone / Launchpad)
+                userData: null         // Respuesta del servicio DatosBasicosCertLabSet
+            });
+            this.setModel(oGlobalDataModel, "globalData");
+
+            // Cargar los datos básicos / certificado laboral del empleado logueado
+            var oBackendService = new BackendService();
+            oBackendService.GetDataEmployee(oUserData.email)
+                .then(function (oData) {
+                    var oEmployeeData = (oData && oData.d) || oData;
+                    oGlobalDataModel.setProperty("/userData", oEmployeeData);
+                })
+                .catch(function (oError) {
+                    console.error("Error al consultar los datos del empleado:", oError);
+                });
         }
     });
 });
