@@ -15,6 +15,10 @@ server:
             - /resources
             - /test-resources
           url: https://ui5.sap.com
+        backend:
+          - path: /sap/opu/odata
+            url: https://fiori-qas.ccb.org.co
+            destination: DestToSAP_QAS
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
