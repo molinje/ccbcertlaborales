@@ -1,6 +1,38 @@
 <mvc:View controllerName="ccb.org.certlaborales.controller.Viewini"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form">
     <Page id="page" title="{i18n>title}">
+     <content>
+            <form:SimpleForm id="formCertvolante"
+                editable="true"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+                emptySpanXL="4" emptySpanL="4" emptySpanM="2" emptySpanS="0"
+                columnsXL="1" columnsL="1" columnsM="1">
+
+                <core:Title text="Datos del Empleado" />
+
+                <Label text="Número de Empleado" />
+                <Input id="inpPernr" value="{globalData>/userData/d/Pernr}" editable="false" />
+
+                <Label text="Nombre" />
+                <Input id="inpNombre" value="{globalData>/userData/d/Nombre}" editable="false" />
+
+               
+
+                <core:Title text="Parámetros del Volante" />
+
+
+            </form:SimpleForm>
+        </content>
+        <footer>
+            <Bar>
+                <contentRight>
+                    <Button id="btnGenerar" text="GENERAR" type="Emphasized" press="onGenerarVolante" />
+                </contentRight>
+            </Bar>
+        </footer>
     </Page>
 </mvc:View>
