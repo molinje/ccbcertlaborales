@@ -12,25 +12,36 @@
                 emptySpanXL="4" emptySpanL="4" emptySpanM="2" emptySpanS="0"
                 columnsXL="1" columnsL="1" columnsM="1">
 
-                <core:Title text="Datos del Empleado" />
+                <core:Title text="Certificados Laborales" />
 
-                <Label text="Número de Empleado" />
-                <Input id="inpPernr" value="{globalData>/userData/d/Pernr}" editable="false" />
+                <Label text="Empleado" />
+                <Text id="txtPernr" text="{globalData>/userData/d/Pernr}" />
 
                 <Label text="Nombre" />
-                <Input id="inpNombre" value="{globalData>/userData/d/Nombre}" editable="false" />
+                <Text id="txtNombre" text="{globalData>/userData/d/Nombre}" />
 
-               
+                <Label text="Fecha" />
+                <DatePicker id="dpFecha" dateValue="{viewiniView>/fecha}" displayFormat="dd.MM.yyyy" />
 
-                <core:Title text="Parámetros del Volante" />
+                <Label text="Tipo de Certificado" />
+                <Select id="selTipoCertificado" selectedKey="{viewiniView>/idCertificado}" items="{globalData>/tiposCertificado}">
+                    <core:Item key="{globalData>Id}" text="{globalData>Descripcion}" />
+                </Select>
 
+                <Label text="Incluir en el Certificado" />
+                <HBox class="sapUiSmallGap">
+                    <CheckBox id="cbTipoContrato" text="Tipo de Contrato" selected="{viewiniView>/tipoContrato}" />
+                    <CheckBox id="cbSalario" text="Salario" selected="{viewiniView>/salario}" />
+                    <CheckBox id="cbCargo" text="Cargo" selected="{viewiniView>/cargo}" />
+                    <CheckBox id="cbArea" text="Area" selected="{viewiniView>/area}" />
+                </HBox>
 
             </form:SimpleForm>
         </content>
         <footer>
             <Bar>
                 <contentRight>
-                    <Button id="btnGenerar" text="GENERAR" type="Emphasized" press="onGenerarVolante" />
+                    <Button id="btnGenerar" text="GENERAR" type="Emphasized" press="onGenerar" />
                 </contentRight>
             </Bar>
         </footer>

@@ -38,7 +38,8 @@ sap.ui.define([
             // Crear modelo global para datos del servicio
             var oGlobalDataModel = new JSONModel({
                 userLogin: oUserData,  // Datos del usuario actual (Work Zone / Launchpad)
-                userData: null         // Respuesta del servicio DatosBasicosCertLabSet
+                userData: null,        // Respuesta del servicio DatosBasicosCertLabSet
+                tiposCertificado: []   // Colección de Tipos de Certificado Laboral (TipoCertificadoLaboralSet)
             });
             this.setModel(oGlobalDataModel, "globalData");
 
@@ -55,6 +56,15 @@ sap.ui.define([
                 })
                 .catch(function (oError) {
                     console.error("Error al consultar los datos del empleado:", oError);
+                });
+
+            // Cargar una única vez la colección de Tipos de Certificado Laboral
+            oBackendService.getTiposCertificado(oUserData.email)
+                .then(function (aTiposCertificado) {
+                    oGlobalDataModel.setProperty("/tiposCertificado", aTiposCertificado);
+                })
+                .catch(function (oError) {
+                    console.error("Error al consultar los tipos de certificado laboral:", oError);
                 });
         }
     });
