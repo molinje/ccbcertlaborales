@@ -135,48 +135,72 @@ sap.ui.define([
 
                 var sUrl = that._getAppBase() + that._generarCertificadoUrl + "?" + aQueryParams.join("&");
 
-                return that._executePostBinary(sUrl, sToken);
+                return that._executePost(sUrl, sToken);
+            }).then(function (oData) {
+                // El Function Import retorna un complex type ZCT_CERT_LAB_RESULT
+                // con el PDF codificado en base64 en el campo "pdf"
+                var oResult = oData && oData.d && oData.d.GenerarCertificadoLaboral;
+                var sBase64Pdf = oResult && oResult.pdf;
+
+                if (!sBase64Pdf) {
+                    return Promise.reject({
+                        error: "El servicio no retornó el PDF del certificado",
+                        response: oData
+                    });
+                }
+
+                try {
+                    return that._base64ToPdfBlob(sBase64Pdf);
+                } catch (e) {
+                    return Promise.reject({
+                        error: "No fue posible decodificar el PDF recibido",
+                        message: e && e.message
+                    });
+                }
             });
         },
 
         /**
-         * Ejecuta un POST al servicio OData (Function Import) y retorna el binario
-         * de la respuesta (PDF) como Blob.
-         * @param {string} sUrl - URL completa del Function Import, con parámetros incluidos
-         * @param {string} sCsrfToken - Token CSRF obtenido previamente con _getCsrfToken
-         * @returns {Promise<Blob>} Promise que resuelve con el Blob de la respuesta
+         * Decodifica una cadena base64 (PDF) a un Blob de tipo application/pdf,
+         * listo para usar con URL.createObjectURL.
+         * @param {string} sBase64 - Contenido del PDF codificado en base64
+         * @returns {Blob} Blob del PDF
          * @private
          */
-        _executePostBinary: function (sUrl, sCsrfToken) {
+        _base64ToPdfBlob: function (sBase64) {
+            var sBinary = atob(sBase64);
+            var nLen = sBinary.length;
+            var aBytes = new Uint8Array(nLen);
+
+            for (var i = 0; i < nLen; i++) {
+                aBytes[i] = sBinary.charCodeAt(i);
+            }
+
+            return new Blob([aBytes], { type: "application/pdf" });
+        },
+
+        /**
+         * Ejecuta un POST al servicio OData (Function Import) y retorna el JSON
+         * de la respuesta.
+         * @param {string} sUrl - URL completa del Function Import, con parámetros incluidos
+         * @param {string} sCsrfToken - Token CSRF obtenido previamente con _getCsrfToken
+         * @returns {Promise} Promise que resuelve con el JSON de respuesta
+         * @private
+         */
+        _executePost: function (sUrl, sCsrfToken) {
             return new Promise(function (resolve, reject) {
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", sUrl, true);
-                xhr.responseType = "blob";
                 xhr.setRequestHeader("X-CSRF-Token", sCsrfToken);
-                xhr.setRequestHeader("Accept", "application/pdf, application/json");
+                xhr.setRequestHeader("Accept", "application/json");
 
                 xhr.onload = function () {
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        var sContentType = xhr.getResponseHeader("Content-Type") || "";
-
-                        if (sContentType.indexOf("application/json") !== -1) {
-                            // El servicio respondió JSON (p.ej. un mensaje de error controlado)
-                            var oReader = new FileReader();
-                            oReader.onload = function () {
-                                try {
-                                    reject(JSON.parse(oReader.result));
-                                } catch (e) {
-                                    reject({ error: "Respuesta inesperada del servicio", raw: oReader.result });
-                                }
-                            };
-                            oReader.onerror = function () {
-                                reject({ error: "No fue posible leer la respuesta del servicio" });
-                            };
-                            oReader.readAsText(xhr.response);
-                            return;
+                        try {
+                            resolve(xhr.responseText ? JSON.parse(xhr.responseText) : {});
+                        } catch (e) {
+                            reject({ error: "Respuesta inesperada del servicio", raw: xhr.responseText });
                         }
-
-                        resolve(xhr.response);
                     } else if (xhr.status === 401) {
                         reject({
                             error: "Authentication failed",
@@ -188,7 +212,8 @@ sap.ui.define([
                         reject({
                             error: "Service request failed",
                             status: xhr.status,
-                            statusText: xhr.statusText
+                            statusText: xhr.statusText,
+                            response: xhr.responseText
                         });
                     }
                 };
