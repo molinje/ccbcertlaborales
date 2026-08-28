@@ -20,6 +20,15 @@
                 <Label text="Nombre" />
                 <Text id="txtNombre" text="{globalData>/userData/d/Nombre}" />
 
+                <Label text="Otro Numero de personal" />
+                <Input id="inpOtroPernr"
+                    value="{viewiniView>/otroPernr}"
+                    type="Number"
+                    maxLength="8"
+                    liveChange="onOtroPernrLiveChange"
+                    visible="{= ${globalData>/userData/d/TienePermiso} === true }"
+                    editable="{= ${globalData>/userData/d/TienePermiso} === true }" />
+
                 <Label text="Fecha" />
                 <DatePicker id="dpFecha" dateValue="{viewiniView>/fecha}" displayFormat="dd.MM.yyyy" />
 
