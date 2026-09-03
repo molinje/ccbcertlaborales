@@ -26,6 +26,7 @@
                     type="Number"
                     maxLength="8"
                     liveChange="onOtroPernrLiveChange"
+                    change="onOtroPernrChange"
                     visible="{= ${globalData>/userData/d/TienePermiso} === true }"
                     editable="{= ${globalData>/userData/d/TienePermiso} === true }" />
 

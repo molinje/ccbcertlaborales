@@ -43,6 +43,88 @@ sap.ui.define([
         },
 
         /**
+         * Maneja el evento "change" del campo "Otro Numero de personal" (se
+         * dispara al perder el foco o pulsar Enter): recalcula el Select de
+         * Tipo de Certificado para el número de personal diligenciado.
+         */
+        onOtroPernrChange() {
+            this._recalcularTiposCertificado();
+        },
+
+        /**
+         * Recalcula la colección de Tipos de Certificado Laboral
+         * (globalData>/tiposCertificado) para el número de personal diligenciado
+         * en "Otro Numero de personal": primero consulta sus datos básicos
+         * (GetDataEmployee) para obtener su correo electrónico, y con ese correo
+         * consulta los tipos de certificado disponibles (getTiposCertificado).
+         * Si el campo está vacío, se vuelve a calcular con el correo del usuario logueado.
+         * @private
+         */
+        _recalcularTiposCertificado() {
+            var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
+            var oViewiniModel = this.getView().getModel("viewiniView");
+            var oView = this.getView();
+            var that = this;
+
+            // La lista/selección previa de Tipo de Certificado queda obsoleta
+            // en cuanto cambia el número de personal a consultar.
+            oViewiniModel.setProperty("/idCertificado", "");
+
+            var sOtroPernr = (oViewiniModel.getProperty("/otroPernr") || "").trim();
+
+            if (!sOtroPernr) {
+                var sEmailLogueado = oGlobalDataModel.getProperty("/userLogin/email");
+                this._cargarTiposCertificadoPorCorreo(sEmailLogueado);
+                return;
+            }
+
+            oView.setBusy(true);
+
+            this._oBackendService.GetDataEmployee(sOtroPernr)
+                .then(function (oResponse) {
+                    var sCorreo = oResponse && oResponse.d && oResponse.d.Correo;
+
+                    if (!sCorreo) {
+                        console.warn("No se encontró el correo del empleado para el número de personal " + sOtroPernr);
+                        oGlobalDataModel.setProperty("/tiposCertificado", []);
+                        oView.setBusy(false);
+                        return;
+                    }
+
+                    return that._cargarTiposCertificadoPorCorreo(sCorreo).then(function () {
+                        oView.setBusy(false);
+                    });
+                })
+                .catch(function (oError) {
+                    oView.setBusy(false);
+                    console.error("Error al consultar los datos del número de personal ingresado:", oError);
+                    MessageBox.error("No fue posible consultar los datos del número de personal ingresado.");
+                    oGlobalDataModel.setProperty("/tiposCertificado", []);
+                });
+        },
+
+        /**
+         * Consulta los Tipos de Certificado Laboral disponibles para un correo
+         * electrónico y actualiza globalData>/tiposCertificado.
+         * @param {string} sCorreo
+         * @returns {Promise}
+         * @private
+         */
+        _cargarTiposCertificadoPorCorreo(sCorreo) {
+            var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
+
+            return this._oBackendService.getTiposCertificado(sCorreo)
+                .then(function (aTiposCertificado) {
+                    oGlobalDataModel.setProperty("/tiposCertificado", aTiposCertificado);
+                })
+                .catch(function (oError) {
+                    console.error("Error al consultar los tipos de certificado laboral:", oError);
+                    MessageBox.error("No fue posible consultar los tipos de certificado laboral disponibles.");
+                    oGlobalDataModel.setProperty("/tiposCertificado", []);
+                });
+        },
+
+        /**
          * Genera (abre) el PDF del Certificado Laboral del empleado logueado,
          * con la Fecha, el Tipo de Certificado y las opciones seleccionadas en el formulario.
          */
