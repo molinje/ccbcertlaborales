@@ -26,9 +26,23 @@ sap.ui.define([
             this.getView().setModel(oViewiniModel, "viewiniView");
         },
 
+        onExit() {
+            if (this._iOtroPernrDebounce) {
+                clearTimeout(this._iOtroPernrDebounce);
+                this._iOtroPernrDebounce = null;
+            }
+        },
+
         /**
          * Maneja el evento "liveChange" del campo "Otro Numero de personal":
-         * solo permite dígitos y limita la longitud a 8 posiciones.
+         * solo permite dígitos y limita la longitud a 8 posiciones, y programa
+         * (con debounce) el recálculo del Select de Tipo de Certificado.
+         *
+         * Nota: el recálculo se dispara desde aquí (con debounce) y no desde el
+         * evento "change" del Input, porque al tener "value" con binding
+         * bidireccional (viewiniView>/otroPernr) y este mismo liveChange
+         * escribiendo de vuelta al modelo, el ciclo modelo→control en cada
+         * tecla hace que "change" deje de dispararse al perder el foco.
          */
         onOtroPernrLiveChange(oEvent) {
             var oInput = oEvent.getSource();
@@ -40,15 +54,17 @@ sap.ui.define([
             }
 
             this.getView().getModel("viewiniView").setProperty("/otroPernr", sSanitized);
-        },
 
-        /**
-         * Maneja el evento "change" del campo "Otro Numero de personal" (se
-         * dispara al perder el foco o pulsar Enter): recalcula el Select de
-         * Tipo de Certificado para el número de personal diligenciado.
-         */
-        onOtroPernrChange() {
-            this._recalcularTiposCertificado();
+            // Debounce: espera a que el usuario deje de escribir antes de
+            // recalcular, para no llamar al backend en cada tecla.
+            var that = this;
+            if (this._iOtroPernrDebounce) {
+                clearTimeout(this._iOtroPernrDebounce);
+            }
+            this._iOtroPernrDebounce = setTimeout(function () {
+                that._iOtroPernrDebounce = null;
+                that._recalcularTiposCertificado();
+            }, 600);
         },
 
         /**
