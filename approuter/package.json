@@ -1,0 +1,14 @@
+{
+  "name": "ccbcertlaborales-approuter",
+  "version": "0.0.1",
+  "description": "App Router standalone para SSO directo (sin Work Zone) de ccbcertlaborales",
+  "engines": {
+    "node": "^22"
+  },
+  "dependencies": {
+    "@sap/approuter": "^19"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  }
+}

@@ -57,6 +57,20 @@ modules:
     - npm install
     - npm run build:cf
     supported-platforms: []
+- name: ccborgcertlaborales-approuter
+  type: approuter.nodejs
+  path: approuter
+  parameters:
+    host: ccb-rrhh-certlaborales
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    ignore:
+    - node_modules/
+  requires:
+  - name: ccborgcertlaborales-uaa
+  - name: ccborgcertlaborales-html5-runtime
+  - name: ccborgcertlaborales-destination-service
 resources:
 - name: ccborgcertlaborales-destination-service
   type: org.cloudfoundry.managed-service
@@ -92,6 +106,12 @@ resources:
     service: html5-apps-repo
     service-name: ccborgcertlaborales-html5-service
     service-plan: app-host
+- name: ccborgcertlaborales-html5-runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: ccborgcertlaborales-html5-runtime-service
+    service-plan: app-runtime
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
