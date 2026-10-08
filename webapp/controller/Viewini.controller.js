@@ -185,11 +185,6 @@ sap.ui.define([
                 return;
             }
 
-            if (!bTipoContrato && !bSalario && !bCargo && !bArea) {
-                MessageBox.warning("Seleccione al menos una opción a incluir en el certificado.");
-                return;
-            }
-
             var sFecha = this._formatFechaAAAAMMDD(oFecha);
             var oView = this.getView();
 
