@@ -45,6 +45,13 @@
                     <CheckBox id="cbArea" text="Area" selected="{viewiniView>/area}" />
                 </HBox>
 
+                <Label id="lblDescripcion" text="Descripción" />
+                <TextArea id="taDescripcion"
+                    value="{viewiniView>/descripcion}"
+                    rows="4"
+                    maxLength="2000"
+                    growing="true" />
+
             </form:SimpleForm>
         </content>
         <footer>

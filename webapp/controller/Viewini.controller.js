@@ -21,7 +21,8 @@ sap.ui.define([
                 salario: false,
                 cargo: false,
                 area: false,
-                otroPernr: ""
+                otroPernr: "",
+                descripcion: ""
             });
             this.getView().setModel(oViewiniModel, "viewiniView");
         },
@@ -169,6 +170,7 @@ sap.ui.define([
             var bSalario = oViewiniModel.getProperty("/salario");
             var bCargo = oViewiniModel.getProperty("/cargo");
             var bArea = oViewiniModel.getProperty("/area");
+            var sDescripcion = (oViewiniModel.getProperty("/descripcion") || "").trim();
 
             if (!sPernr) {
                 MessageBox.error("No se han cargado los datos del empleado. Intente recargar la aplicación.");
@@ -190,7 +192,7 @@ sap.ui.define([
 
             oView.setBusy(true);
 
-            this._oBackendService.generarCertificadoLaboral({
+            var oParams = {
                 Pernr: sPernr,
                 Fecha: sFecha,
                 IdCertificado: sIdCertificado,
@@ -198,7 +200,13 @@ sap.ui.define([
                 Salario: bSalario,
                 Cargo: bCargo,
                 Area: bArea
-            })
+            };
+
+            if (sDescripcion) {
+                oParams.descripcion = sDescripcion;
+            }
+
+            this._oBackendService.generarCertificadoLaboral(oParams)
                 .then(function (oBlob) {
                     oView.setBusy(false);
                     var sBlobUrl = URL.createObjectURL(oBlob);

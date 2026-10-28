@@ -133,6 +133,11 @@ sap.ui.define([
                     "Estandar=false"
                 ];
 
+                var sDescripcion = String((oParams && oParams.descripcion) || "").trim();
+                if (sDescripcion) {
+                    aQueryParams.push("descripcion=" + encodeURIComponent("'" + sDescripcion + "'"));
+                }
+
                 var sUrl = that._getAppBase() + that._generarCertificadoUrl + "?" + aQueryParams.join("&");
 
                 return that._executePost(sUrl, sToken);
