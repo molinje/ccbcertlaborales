@@ -29,7 +29,6 @@
                         type="Number"
                         maxLength="8"
                         liveChange="onOtroPernrLiveChange"
-                        change="onOtroPernrChange"
                         width="12rem" />
                     <Button id="btnBuscarOtroPernr"
                         icon="sap-icon://search"

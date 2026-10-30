@@ -30,10 +30,19 @@ sap.ui.define([
         /**
          * Maneja el evento "liveChange" del campo "Otro Numero de personal":
          * solo permite dígitos y limita la longitud a 8 posiciones. Ya NO
-         * dispara la consulta al backend en cada tecla (eso generaba errores
-         * continuos mientras el usuario aún estaba completando el número);
-         * la consulta ahora la lanza el propio usuario con el botón de
-         * búsqueda (ver onBuscarOtroPernr).
+         * dispara la consulta al backend en cada tecla mientras el usuario
+         * aún está completando el número (eso generaba errores continuos);
+         * la consulta de un número diligenciado la lanza el propio usuario
+         * con el botón de búsqueda (ver onBuscarOtroPernr).
+         *
+         * Caso especial: si el campo queda vacío (el usuario borró todo),
+         * sí se revierte de inmediato aquí mismo, porque a diferencia de un
+         * número a medio escribir, un campo vacío es un estado final e
+         * inequívoco — no hay riesgo de consultar con datos incompletos.
+         * No se usa el evento "change" (blur) para esto: como "value" tiene
+         * binding bidireccional y este mismo liveChange escribe de vuelta al
+         * modelo, el ciclo modelo→control en cada tecla hace que "change" no
+         * llegue a dispararse al perder el foco (confirmado en pruebas).
          */
         onOtroPernrLiveChange(oEvent) {
             var oInput = oEvent.getSource();
@@ -45,19 +54,8 @@ sap.ui.define([
             }
 
             this.getView().getModel("viewiniView").setProperty("/otroPernr", sSanitized);
-        },
 
-        /**
-         * Maneja el evento "change" (blur / Enter) del campo "Otro Numero de
-         * personal". Solo actúa cuando el usuario lo deja vacío: en ese caso
-         * revierte automáticamente el Select de Tipo de Certificado al
-         * correo del usuario logueado, sin esperar a que presione el botón
-         * de búsqueda (que queda deshabilitado con el campo vacío).
-         */
-        onOtroPernrChange() {
-            var sOtroPernr = this.getView().getModel("viewiniView").getProperty("/otroPernr");
-
-            if (!sOtroPernr) {
+            if (!sSanitized) {
                 this._recalcularTiposCertificado();
             }
         },
@@ -73,11 +71,18 @@ sap.ui.define([
 
         /**
          * Recalcula la colección de Tipos de Certificado Laboral
-         * (globalData>/tiposCertificado) para el número de personal diligenciado
-         * en "Otro Numero de personal": primero consulta sus datos básicos
-         * (GetDataEmployee) para obtener su correo electrónico, y con ese correo
+         * (globalData>/tiposCertificado) y los datos de "Empleado"/"Nombre"
+         * mostrados (globalData>/userData/d/Pernr y /Nombre) para el número
+         * de personal diligenciado en "Otro Numero de personal": primero
+         * consulta sus datos básicos (GetDataEmployee) para obtener su
+         * correo electrónico y actualizar esos campos, y con ese correo
          * consulta los tipos de certificado disponibles (getTiposCertificado).
-         * Si el campo está vacío, se vuelve a calcular con el correo del usuario logueado.
+         * Si el campo está vacío, se vuelve a consultar con el correo del
+         * usuario logueado, para que "Empleado"/"Nombre" vuelvan a mostrar
+         * los datos del empleado original. No se toca
+         * globalData>/userData/d/TienePermiso: ese permiso es del usuario
+         * logueado, no del empleado consultado, y de él depende que el
+         * campo "Otro Numero de personal" siga visible.
          * @private
          */
         _recalcularTiposCertificado() {
@@ -92,13 +97,30 @@ sap.ui.define([
 
             var sOtroPernr = (oViewiniModel.getProperty("/otroPernr") || "").trim();
 
+            oView.setBusy(true);
+
             if (!sOtroPernr) {
                 var sEmailLogueado = oGlobalDataModel.getProperty("/userLogin/email");
-                this._cargarTiposCertificadoPorCorreo(sEmailLogueado);
+
+                this._oBackendService.GetDataEmployee(sEmailLogueado)
+                    .then(function (oResponse) {
+                        var oEmpleado = oResponse && oResponse.d;
+                        if (oEmpleado) {
+                            oGlobalDataModel.setProperty("/userData/d/Pernr", oEmpleado.Pernr);
+                            oGlobalDataModel.setProperty("/userData/d/Nombre", oEmpleado.Nombre);
+                        }
+                    })
+                    .catch(function (oError) {
+                        console.error("Error al volver a consultar los datos del empleado logueado:", oError);
+                    })
+                    .then(function () {
+                        return that._cargarTiposCertificadoPorCorreo(sEmailLogueado);
+                    })
+                    .then(function () {
+                        oView.setBusy(false);
+                    });
                 return;
             }
-
-            oView.setBusy(true);
 
             this._oBackendService.GetDataEmployee(sOtroPernr)
                 .then(function (oResponse) {
@@ -110,6 +132,9 @@ sap.ui.define([
                         oView.setBusy(false);
                         return;
                     }
+
+                    oGlobalDataModel.setProperty("/userData/d/Pernr", oResponse.d.Pernr);
+                    oGlobalDataModel.setProperty("/userData/d/Nombre", oResponse.d.Nombre);
 
                     return that._cargarTiposCertificadoPorCorreo(sCorreo).then(function () {
                         oView.setBusy(false);
