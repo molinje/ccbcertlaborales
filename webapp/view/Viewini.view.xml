@@ -20,14 +20,24 @@
                 <Label text="Nombre" />
                 <Text id="txtNombre" text="{globalData>/userData/d/Nombre}" />
 
-                <Label text="Otro Numero de personal" />
-                <Input id="inpOtroPernr"
-                    value="{viewiniView>/otroPernr}"
-                    type="Number"
-                    maxLength="8"
-                    liveChange="onOtroPernrLiveChange"
-                    visible="{= ${globalData>/userData/d/TienePermiso} === true }"
-                    editable="{= ${globalData>/userData/d/TienePermiso} === true }" />
+                <Label id="lblOtroPernr" text="Otro Numero de personal" />
+                <HBox id="hboxOtroPernr"
+                    class="sapUiTinyGap"
+                    visible="{= ${globalData>/userData/d/TienePermiso} === true }">
+                    <Input id="inpOtroPernr"
+                        value="{viewiniView>/otroPernr}"
+                        type="Number"
+                        maxLength="8"
+                        liveChange="onOtroPernrLiveChange"
+                        change="onOtroPernrChange"
+                        width="12rem" />
+                    <Button id="btnBuscarOtroPernr"
+                        icon="sap-icon://search"
+                        type="Transparent"
+                        tooltip="Consultar los datos del número de personal digitado"
+                        enabled="{= !!${viewiniView>/otroPernr} }"
+                        press="onBuscarOtroPernr" />
+                </HBox>
 
                 <Label text="Fecha" />
                 <DatePicker id="dpFecha" dateValue="{viewiniView>/fecha}" displayFormat="dd.MM.yyyy" />
