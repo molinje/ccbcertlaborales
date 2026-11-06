@@ -1,0 +1,11 @@
+_schema-version: "3.2"
+ID: ccborgcertlaborales.prod
+extends: ccborgcertlaborales
+modules:
+- name: ccborgcertlaborales-approuter
+  parameters:
+    host: ccb-rrhh-certlaborales-prod
+resources:
+- name: ccborgcertlaborales-uaa
+  parameters:
+    path: ./xs-security-prod.json

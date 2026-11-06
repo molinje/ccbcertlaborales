@@ -1,6 +1,6 @@
 {
   "name": "certlaborales",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Certificados laborales Cámara de comercio de Bogotá",
   "keywords": [
     "ui5",
@@ -30,7 +30,8 @@
     "start-variants-management": "fiori run --open \"/preview.html#app-preview\"",
     "unit-test": "fiori run --open \"test/unit/unitTests.qunit.html\"",
     "build:cf": "ui5 build preload --clean-dest --config ui5-deploy.yaml --include-task=generateCachebusterInfo",
-    "build:mta": "rimraf resources mta_archives && mbt build",
+    "bump-version": "node scripts/bump-version.js",
+    "build:mta": "npm run bump-version && rimraf resources mta_archives && mbt build",
     "undeploy": "cf undeploy ccborgcertlaborales --delete-services --delete-service-keys --delete-service-brokers"
   },
   "sapuxLayer": "CUSTOMER_BASE"
